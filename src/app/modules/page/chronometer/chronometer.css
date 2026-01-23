@@ -44,7 +44,7 @@
   animation: fall linear infinite;
 }
 .timer-digit {
-  font-size: 18rem;
+  font-size: 28rem;
   line-height: 1;
   font-weight: 700;
   mix-blend-mode: multiply;
@@ -76,4 +76,18 @@
     'wght' 400,
     'GRAD' 0,
     'opsz' 24;
+}
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.heartbeat-dot {
+  animation: heartbeat 1s ease-in-out infinite;
 }
