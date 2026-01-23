@@ -1,0 +1,26 @@
+<main class="relative h-screen w-svw flex flex-col items-center justify-center z-10" id="timer-main">
+    <h1 class="text-8xl font-bold mb-8 text-gray-800 dark:text-gray-200">{{ currentSectionText() }}</h1>
+    <div class="flex items-center justify-center gap-4 select-none">
+        <div class="flex">
+            <app-timer-digit [digit]="minutesDigit1()" class="text-autumn-orange/80 dark:text-autumn-orange/60" />
+            <app-timer-digit [digit]="minutesDigit2()" class="text-autumn-green/80 dark:text-autumn-green/60" />
+            <div class="flex flex-col justify-center gap-18 mx-4">
+                <div class="w-10 h-10 rounded-full bg-autumn-green/70" [class.heartbeat-dot]="running"></div>
+                <div class="w-10 h-10 rounded-full bg-autumn-yellow/70" [class.heartbeat-dot]="running"></div>
+            </div>
+            <app-timer-digit [digit]="secondsDigit1()" class="text-autumn-yellow/80 dark:text-autumn-yellow/60" />
+            <app-timer-digit [digit]="secondsDigit2()" class="text-autumn-red/80 dark:text-autumn-red/60" />
+        </div>
+    </div>
+
+    <div class="flex gap-4 mt-16">
+        @if (!running) {
+        <button (click)="start()" class="text-white bg-autumn-green/80 px-4 py-2 rounded-md">Start</button>
+        }@else {
+        <button (click)="stop()" class="text-white bg-autumn-red/60 px-4 py-2 rounded-md">Stop</button>
+        }
+
+
+        <button (click)="reset()" class="text-white bg-autumn-blue/80 px-4 py-2 rounded-md">Reset</button>
+    </div>
+</main>

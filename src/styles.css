@@ -1,3 +1,30 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import "tailwindcss";
+@import 'tailwindcss';
+
+html,
+body {
+  background-color: #fdf8f1;
+}
+
+@theme {
+  --color-primary: #d97706;
+  --color-background-light: #fdf8f1;
+  --color-background-dark: #1a120b;
+  --color-autumn-orange: #e67e22;
+  --color-autumn-green: #6b8e23;
+  --color-autumn-red: #8b0000;
+  --color-autumn-yellow: #d4ac0d;
+  --color-autumn-brown: #5d4037;
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0;
+  }
+}
