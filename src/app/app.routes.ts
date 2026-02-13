@@ -1,11 +1,16 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'chronometer', pathMatch: 'full' },
+  { path: '', redirectTo: 'timer-setup', pathMatch: 'full' },
   {
     path: 'chronometer',
     loadComponent: () =>
-      import('../app/modules/page/chronometer/chronometer').then((m) => m.Chronometer),
+      import('./modules/page/chronometer/chronometer').then((m) => m.Chronometer),
   },
-  { path: '**', redirectTo: 'chronometer' },
+  {
+    path: 'timer-setup',
+    loadComponent: () =>
+      import('./modules/page/timer-setup/timer-setup').then((m) => m.TimerSetupComponent),
+  },
+  { path: '**', redirectTo: 'timer-setup' },
 ];

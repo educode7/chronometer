@@ -15,12 +15,18 @@
 
     <div class="flex gap-4 mt-16">
         @if (!running) {
-        <button (click)="start()" class="text-white bg-autumn-green/80 px-4 py-2 rounded-md">Start</button>
+        <button (click)="start()" class="text-white bg-autumn-green/80 px-4 py-2 rounded-md">Empezar</button>
         }@else {
-        <button (click)="stop()" class="text-white bg-autumn-red/60 px-4 py-2 rounded-md">Stop</button>
+        <button (click)="stop()" class="text-white bg-autumn-red/60 px-4 py-2 rounded-md">Detener</button>
         }
 
-
-        <button (click)="reset()" class="text-white bg-autumn-blue/80 px-4 py-2 rounded-md">Reset</button>
+        <button (click)="reset()" class="text-white bg-autumn-blue/80 px-4 py-2 rounded-md">Reiniciar</button>
     </div>
+
+    <!-- <div class="mt-8 text-center text-gray-600 dark:text-gray-400">
+        <p>Usando las secciones configuradas</p>
+        <button (click)="goToTimerSetup()" class="mt-2 inline-block px-4 py-2 text-sm font-medium text-white bg-autumn-green/80 rounded-md hover:bg-autumn-green/90 transition-colors duration-200">
+            Editar Secciones
+        </button>
+    </div> -->
 </main>

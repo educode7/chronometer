@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit, ViewEncapsulation, signal } from '@angular/core';
 import { TimerDigit } from '../../../shared/components/timer-digit/timer-digit';
 import { CommonModule } from '@angular/common';
-import { SECTIONS } from './sections';
+import { ActivatedRoute, Router } from '@angular/router';
+import { sectionsSignal, Section } from './sections';
 
 @Component({
   selector: 'app-chronometer',
@@ -11,8 +12,7 @@ import { SECTIONS } from './sections';
   encapsulation: ViewEncapsulation.None,
 })
 export class Chronometer implements OnInit, OnDestroy {
-  private sections = SECTIONS;
-
+  private sections = sectionsSignal.asReadonly();
   private currentSectionIndex = 0;
   public currentSectionText = signal('');
 
@@ -25,8 +25,23 @@ export class Chronometer implements OnInit, OnDestroy {
   secondsDigit1 = signal(0);
   secondsDigit2 = signal(0);
 
+  constructor(private route: ActivatedRoute, private router: Router) {}
+
   ngOnInit(): void {
-    this.setupSection(this.currentSectionIndex);
+    // Check if we have custom time from the timer setup form
+    const initialHours = Number(this.route.snapshot.queryParams['hours']) || 0;
+    const initialMinutes = Number(this.route.snapshot.queryParams['minutes']) || 0;
+    const initialSeconds = Number(this.route.snapshot.queryParams['seconds']) || 0;
+    
+    if (initialHours > 0 || initialMinutes > 0 || initialSeconds > 0) {
+      // Use custom time from timer setup
+      this.time = initialHours * 3600 + initialMinutes * 60 + initialSeconds;
+      this.currentSectionText.set('Cronómetro Personalizado');
+    } else {
+      // Use the first section from the sections list
+      this.setupSection(this.currentSectionIndex);
+    }
+    this.updateDigits();
   }
 
   ngOnDestroy(): void {
@@ -36,8 +51,22 @@ export class Chronometer implements OnInit, OnDestroy {
   reset(): void {
     this.stop();
     this.running = false;
-    this.currentSectionIndex = 0;
-    this.setupSection(this.currentSectionIndex);
+    
+    // Check if we had custom time from timer setup
+    const initialHours = Number(this.route.snapshot.queryParams['hours']) || 0;
+    const initialMinutes = Number(this.route.snapshot.queryParams['minutes']) || 0;
+    const initialSeconds = Number(this.route.snapshot.queryParams['seconds']) || 0;
+    
+    if (initialHours > 0 || initialMinutes > 0 || initialSeconds > 0) {
+      // Reset to custom time
+      this.time = initialHours * 3600 + initialMinutes * 60 + initialSeconds;
+      this.currentSectionText.set('Cronómetro Personalizado');
+    } else {
+      // Reset to the first section
+      this.currentSectionIndex = 0;
+      this.setupSection(this.currentSectionIndex);
+    }
+    this.updateDigits();
   }
 
   start(): void {
@@ -61,15 +90,15 @@ export class Chronometer implements OnInit, OnDestroy {
 
   private nextSection(): void {
     this.currentSectionIndex++;
-    if (this.currentSectionIndex >= this.sections.length) {
-      this.currentSectionIndex = 0; // Loop
+    if (this.currentSectionIndex >= this.sections().length) {
+      this.currentSectionIndex = 0; // Loop back to the first section
     }
     this.setupSection(this.currentSectionIndex);
   }
 
   private setupSection(sectionIndex: number): void {
     this.currentSectionIndex = sectionIndex;
-    const currentSection = this.sections[sectionIndex];
+    const currentSection = this.sections()[sectionIndex];
     this.time = this.parseTimeToSeconds(currentSection.time);
     this.currentSectionText.set(currentSection.text);
     this.updateDigits();
@@ -82,12 +111,21 @@ export class Chronometer implements OnInit, OnDestroy {
 
   private updateDigits(): void {
     const totalSeconds = this.time;
-    const minutes = Math.floor(totalSeconds / 60);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
 
-    this.minutesDigit1.set(Math.floor(minutes / 10));
+    // For display purposes, we'll show minutes and seconds in the current format
+    // If hours > 0, we'll add them to the minutes display
+    const totalMinutes = hours * 60 + minutes;
+
+    this.minutesDigit1.set(Math.floor(totalMinutes / 10));
     this.minutesDigit2.set(minutes % 10);
     this.secondsDigit1.set(Math.floor(seconds / 10));
     this.secondsDigit2.set(seconds % 10);
+  }
+
+  goToTimerSetup(): void {
+    this.router.navigate(['/timer-setup']);
   }
 }
