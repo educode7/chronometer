@@ -77,23 +77,51 @@ export class Chronometer implements OnInit, OnDestroy {
           this.time--;
           this.updateDigits();
         } else {
+          // Stop the current timer before the delay
+          clearInterval(this.timer);
           this.nextSection();
         }
       }, 1000);
     }
   }
 
+  private sectionTransitionTimeout: any = null;
+
   stop(): void {
     this.running = false;
     clearInterval(this.timer);
+    if (this.sectionTransitionTimeout) {
+      clearTimeout(this.sectionTransitionTimeout);
+      this.sectionTransitionTimeout = null;
+    }
   }
 
   private nextSection(): void {
-    this.currentSectionIndex++;
-    if (this.currentSectionIndex >= this.sections().length) {
-      this.currentSectionIndex = 0; // Loop back to the first section
-    }
-    this.setupSection(this.currentSectionIndex);
+    // Play notification sound
+    this.playNotificationSound();
+    
+    // Wait 5 seconds before moving to the next section
+    this.sectionTransitionTimeout = setTimeout(() => {
+      this.currentSectionIndex++;
+      if (this.currentSectionIndex >= this.sections().length) {
+        this.currentSectionIndex = 0; // Loop back to the first section
+      }
+      this.setupSection(this.currentSectionIndex);
+      
+      // Restart the timer if the chronometer is still running
+      if (this.running) {
+        this.timer = setInterval(() => {
+          if (this.time > 0) {
+            this.time--;
+            this.updateDigits();
+          } else {
+            // Stop the current timer before the delay
+            clearInterval(this.timer);
+            this.nextSection();
+          }
+        }, 1000);
+      }
+    }, 5000); // 5 seconds delay
   }
 
   private setupSection(sectionIndex: number): void {
@@ -102,6 +130,61 @@ export class Chronometer implements OnInit, OnDestroy {
     this.time = this.parseTimeToSeconds(currentSection.time);
     this.currentSectionText.set(currentSection.text);
     this.updateDigits();
+  }
+
+  private playNotificationSound(): void {
+    try {
+      // Create audio context
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      // Create oscillator for the beep sound
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.type = 'triangle'; // Type of waveform
+      oscillator.frequency.value = 800; // Frequency in hertz
+      
+      // Initially set gain to 0 (silent)
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      
+      // Connect nodes
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Play the oscillator
+      oscillator.start();
+      
+      // Create a pulsing effect for 5 seconds
+      // Pulse every 1 second (like a heartbeat)
+      const pulseInterval = 1.0; // seconds
+      const pulseDuration = 0.3; // Duration of each pulse
+      const startTime = audioContext.currentTime + 0.1; // Start after a small delay
+      const endTime = startTime + 5.0; // Total duration
+      
+      // Schedule the pulses
+      let pulseTime = startTime;
+      while (pulseTime < endTime) {
+        // Each pulse: ramp up, hold, ramp down
+        gainNode.gain.setValueAtTime(0, pulseTime);
+        gainNode.gain.linearRampToValueAtTime(0.3, pulseTime + 0.05); // Quick ramp up
+        gainNode.gain.setValueAtTime(0.3, pulseTime + pulseDuration/2); // Hold
+        gainNode.gain.linearRampToValueAtTime(0, pulseTime + pulseDuration); // Ramp down
+        
+        pulseTime += pulseInterval;
+      }
+      
+      // Stop the oscillator after 5 seconds
+      oscillator.stop(endTime);
+      
+      // Close the audio context after the sound finishes
+      setTimeout(() => {
+        if (audioContext.state !== 'closed') {
+          audioContext.close();
+        }
+      }, 5100); // Slightly longer than the sound duration (5 seconds = 5000 ms)
+    } catch (e) {
+      console.warn('Could not play notification sound:', e);
+    }
   }
 
   private parseTimeToSeconds(timeString: string): number {
