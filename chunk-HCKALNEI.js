@@ -1,0 +1,1 @@
+import{o as e}from"./chunk-NXQ5NWBC.js";var i=e([{text:"Compa\xF1erismo y Pastoreo",time:"00:05:00"},{text:"Minutos Misioneros",time:"00:10:00"},{text:"Mayordom\xEDa",time:"00:05:00"},{text:"Repaso de la Lecci\xF3n Escuela Sab\xE1tica",time:"00:35:00"}]);export{i as a};
